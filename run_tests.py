@@ -97,18 +97,13 @@ def run_tests_with_coverage():
     cov.start()
 
     # Run all tests
-    loader = unittest.TestLoader()
-    try:
-        suite = loader.discover(start_dir="test")
-    except Exception as e:
-        print(f"⚠️ Warning: Could not discover test folder. Running basic suite.\n{e}")
-        suite = loader.loadTestsFromTestCase(TestDataManager)
-
-    runner = unittest.TextTestRunner()
-    result = runner.run(suite)
-
-    cov.stop()
-    cov.save()
+loader = unittest.TestLoader()
+try:
+    suite = loader.discover(start_dir="test")
+    
+# Run only tests from this file
+loader = unittest.TestLoader()
+suite = loader.loadTestsFromModule(sys.modules[__name__])
 
     print("\n--- CODE COVERAGE REPORT ---\n")
     cov.report()
