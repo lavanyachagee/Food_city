@@ -23,6 +23,8 @@ jobs:
       run: |
         pip install pandas matplotlib coverage
 
-    - name: Run Tests with Coverage
+    - name: Run Tests with Coverage (Verbose)
       run: |
-        python run_tests.py
+        python run_tests.py -v
+
+     
