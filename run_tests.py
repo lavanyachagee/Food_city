@@ -50,6 +50,52 @@ class TestDataManager(unittest.TestCase):
         for col in expected_columns:
             self.assertIn(col, report.columns)
 
+class TestAnalysisMethods(unittest.TestCase):
+    def setUp(self):
+        self.manager = DataManager(data_file="test_sales_data.csv")
+        # Ensure data exists (use mock data if needed)
+        if self.manager.sales_data.empty:
+            test_data = pd.DataFrame({
+                "Date": pd.to_datetime(["2024-06-01", "2024-06-02", "2024-06-03", "2024-06-04"]),
+                "Branch": ["Colombo", "Kandy", "Colombo", "Kandy"],
+                "Product": ["Milk", "Bread", "Milk", "Eggs"],
+                "Quantity": [5, 10, 2, 12],
+                "UnitPrice": [150, 50, 160, 30],
+                "Total": [750, 500, 320, 360]
+            })
+            self.manager.add_data(test_data)
+
+    def test_monthly_sales_analysis(self):
+        df = self.manager.get_monthly_sales(branch="Colombo", year=2024, month=6)
+        self.assertFalse(df.empty)
+        self.assertIn("Product", df.columns)
+
+    def test_price_analysis(self):
+        df = self.manager.get_product_price_history("Milk")
+        self.assertFalse(df.empty)
+        self.assertIn("UnitPrice", df.columns)
+
+    def test_weekly_sales_analysis(self):
+        start = pd.Timestamp("2024-06-01")
+        end = pd.Timestamp("2024-06-07")
+        df = self.manager.get_weekly_sales(start, end, branch="All Branches")
+        self.assertFalse(df.empty)
+        self.assertIn("DayOfWeek", df.columns)
+
+    def test_product_preference_analysis(self):
+        start = pd.Timestamp("2024-06-01")
+        end = pd.Timestamp("2024-06-07")
+        df = self.manager.get_product_preferences(date_range=(start, end), branch="All Branches")
+        self.assertFalse(df.empty)
+        self.assertIn("Product", df.columns)
+
+    def test_sales_distribution_analysis(self):
+        start = pd.Timestamp("2024-06-01")
+        end = pd.Timestamp("2024-06-07")
+        series = self.manager.get_sales_distribution(date_range=(start, end), branch="All Branches")
+        self.assertFalse(series.empty)
+        self.assertIsInstance(series, pd.Series)
+
 # --- 2. INTEGRATION TESTS ---
 class TestMonthlySalesPageIntegration(unittest.TestCase):
     def setUp(self):
